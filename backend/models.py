@@ -3,6 +3,10 @@ from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 from bson import ObjectId
+from sqlalchemy import select
+from backend.models import User as UserModel
+
+stmt = select(UserModel).where(UserModel.email == user.email)
 
 class PyObjectId(ObjectId):
     @classmethod

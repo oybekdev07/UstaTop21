@@ -1,16 +1,15 @@
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from backend.models import User   # bu endi SQLAlchemy model
-from backend.schemas import UserCreate, User as UserSchema
-from sqlalchemy import select   # 🟢 TO‘G‘RI IMPORT
-from backend.database import get_db
-from backend.models import User, UserRole
-from backend.schemas import UserCreate, User as UserSchema, Token, UserLogin
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+
+# 🔹 To‘g‘ri importlar
+from backend.database import get_db
+from backend.models import User as UserModel
+from backend.schemas import UserCreate, User as UserSchema, Token, UserLogin
 from backend.auth import (
     verify_password, 
     get_password_hash, 
@@ -23,9 +22,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 router = APIRouter()
 
+
 @router.post("/register")
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    stmt = select(User).where(User.email == user.email)
+    stmt = select(UserModel).where(UserModel.email == user.email)
     result = await db.execute(stmt)
     existing_user = result.scalars().first()
 
@@ -33,7 +33,7 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="User already registered")
 
     hashed_password = pwd_context.hash(user.password)
-    new_user = User(email=user.email, hashed_password=hashed_password)
+    new_user = UserModel(email=user.email, password_hash=hashed_password)
 
     db.add(new_user)
     await db.commit()
@@ -43,8 +43,10 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == user_credentials.email).first()
+async def login(user_credentials: UserLogin, db: AsyncSession = Depends(get_db)):
+    stmt = select(UserModel).where(UserModel.email == user_credentials.email)
+    result = await db.execute(stmt)
+    user = result.scalars().first()
     
     if not user or not verify_password(user_credentials.password, user.password_hash):
         raise HTTPException(
@@ -66,9 +68,10 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
     
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == form_data.username).first()
+    user = db.query(UserModel).filter(UserModel.email == form_data.username).first()
     
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
@@ -84,12 +87,14 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @router.get("/me", response_model=UserSchema)
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
+async def read_users_me(current_user: UserSchema = Depends(get_current_active_user)):
     return current_user
 
+
 @router.post("/refresh-token", response_model=Token)
-async def refresh_token(current_user: User = Depends(get_current_active_user)):
+async def refresh_token(current_user: UserSchema = Depends(get_current_active_user)):
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": current_user.email}, expires_delta=access_token_expires
