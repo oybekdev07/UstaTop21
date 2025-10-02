@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, users, categories, masters, services, orders, reviews, search
 
 
+
 app = FastAPI(
     title="Ustatop API",
     description="Professional Services Platform API",

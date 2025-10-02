@@ -7,12 +7,19 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from decouple import config
 from backend.database import get_db
+from backend.models import User
+
+from sqlalchemy.orm import Session
+from backend.models import User
+
+def get_user_by_email(db: Session, email: str):
+    return db.query(User).filter(User.email == email).first()
+
 # app/routers/auth.py
 # auth.py
 from backend.models import User  # <== SQLAlchemy model yoki Pydantic model
 from sqlalchemy import select
 
-stmt = select(User).where(User.email == user.email)
 
 
 from backend.schemas import TokenData
