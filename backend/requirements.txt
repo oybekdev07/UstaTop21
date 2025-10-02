@@ -7,5 +7,7 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-decouple==3.8
 alembic==1.12.1
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic==2.4.1
+pydantic-settings==2.0.3
+git add . && git commit -m "O'zgarishlar" && git push origin main
+
