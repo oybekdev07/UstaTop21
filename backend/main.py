@@ -41,7 +41,12 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers import auth, users, categories, masters, services, orders, reviews, search
+from app.routers import auth, users, categories, masters, services, orders, reviews, search
+from backend.database import engine, Base
+from backend import models
+
+Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="Ustatop API",

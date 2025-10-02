@@ -2,8 +2,8 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from backend.database import get_db
 from backend.models import User, UserRole, PyObjectId
-from backend.schemas import User as UserSchema, UserUpdate
-from backend.auth import get_current_active_user
+from backend.schemas import User as UserSchema, UserCreate
+from backend.auth import get_current_user
 from bson import ObjectId
 from datetime import datetime
 
@@ -14,7 +14,7 @@ async def get_users(
     skip: int = 0, 
     limit: int = 100, 
     db = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Only admin can view all users
     if current_user.role != UserRole.ADMIN:
@@ -31,7 +31,7 @@ async def get_users(
 async def get_user(
     user_id: str, 
     db = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Users can only view their own profile, admins can view any
     if str(current_user.id) != user_id and current_user.role != UserRole.ADMIN:
@@ -58,9 +58,9 @@ async def get_user(
 @router.put("/{user_id}", response_model=UserSchema)
 async def update_user(
     user_id: str,
-    user_update: UserUpdate,
+    user_update: UserCreate,
     db = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Users can only update their own profile, admins can update any
     if str(current_user.id) != user_id and current_user.role != UserRole.ADMIN:
@@ -99,7 +99,7 @@ async def update_user(
 async def delete_user(
     user_id: str,
     db = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Only admin can delete users
     if current_user.role != UserRole.ADMIN:
@@ -133,7 +133,7 @@ async def delete_user(
 async def activate_user(
     user_id: str,
     db = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Only admin can activate users
     if current_user.role != UserRole.ADMIN:
@@ -166,7 +166,7 @@ async def activate_user(
 async def verify_user(
     user_id: str,
     db = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Only admin can verify users
     if current_user.role != UserRole.ADMIN:

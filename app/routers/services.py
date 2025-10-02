@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 from backend.database import get_db
 from backend.models import Service, Master, User, UserRole, Category
 from backend.schemas import Service as ServiceSchema, ServiceCreate
-from backend.auth import get_current_active_user
+from backend.auth import get_current_user
 
 router = APIRouter()
 
@@ -62,7 +62,7 @@ async def get_service(service_id: int, db: Session = Depends(get_db)):
 async def create_service(
     service_data: ServiceCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Check if user has a master profile
     master = db.query(Master).filter(Master.user_id == current_user.id).first()
@@ -96,7 +96,7 @@ async def update_service(
     service_id: int,
     service_update: ServiceCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     service = db.query(Service).filter(Service.id == service_id).first()
     if not service:
@@ -126,7 +126,7 @@ async def update_service(
 async def delete_service(
     service_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     service = db.query(Service).filter(Service.id == service_id).first()
     if not service:

@@ -1,35 +1,63 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
+from enum import Enum
 from backend.models import UserRole, OrderStatus
 
-# User Schemas
+# schemas.py
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+from datetime import datetime
+from enum import Enum
+from backend.models import User
+
+
+from pydantic import BaseModel
+from typing import Optional, List, ForwardRef
+
+# Oldin User ni string qilib ishlatamiz
+class MasterBase(BaseModel):
+    id: int
+    name: str
+
+class Master(MasterBase):
+    user: "User"   # 🔹 string sifatida yoziladi (forward reference)
+
+class Order(BaseModel):
+    id: int
+    client: "User"   # 🔹 string sifatida yoziladi
+
+
+class UserRole(str, Enum):
+    CLIENT = "client"
+    MASTER = "master"
+    ADMIN = "admin"
+
 class UserBase(BaseModel):
     email: EmailStr
-    phone: Optional[str] = None
     first_name: str
     last_name: str
+    role: UserRole = UserRole.CLIENT
 
 class UserCreate(UserBase):
     password: str
-    role: UserRole = UserRole.CLIENT
 
-class UserUpdate(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    phone: Optional[str] = None
-    avatar_url: Optional[str] = None
-
-class User(UserBase):
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+    
+    
+class UserResponse(UserBase):
     id: int
-    role: UserRole
     is_active: bool
     is_verified: bool
-    avatar_url: Optional[str] = None
     created_at: datetime
-    
+    updated_at: Optional[datetime]
+
     class Config:
-        from_attributes = True
+        orm_mode = True
+
+
 
 # Category Schemas
 class CategoryBase(BaseModel):

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import Category, User, UserRole
 from backend.schemas import Category as CategorySchema, CategoryCreate
-from backend.auth import get_current_active_user
+from backend.auth import get_current_user
 
 router = APIRouter()
 
@@ -31,7 +31,7 @@ async def get_category(category_id: int, db: Session = Depends(get_db)):
 async def create_category(
     category: CategoryCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Only admin can create categories
     if current_user.role != UserRole.ADMIN:
@@ -52,7 +52,7 @@ async def update_category(
     category_id: int,
     category_update: CategoryCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Only admin can update categories
     if current_user.role != UserRole.ADMIN:
@@ -81,7 +81,7 @@ async def update_category(
 async def delete_category(
     category_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Only admin can delete categories
     if current_user.role != UserRole.ADMIN:

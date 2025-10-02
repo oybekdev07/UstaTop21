@@ -11,7 +11,7 @@ from backend.schemas import (
     Portfolio as PortfolioSchema,
     PortfolioCreate
 )
-from backend.auth import get_current_active_user
+from backend.auth import get_current_user
 
 router = APIRouter()
 
@@ -75,7 +75,7 @@ async def get_master(master_id: int, db: Session = Depends(get_db)):
 async def create_master_profile(
     master_data: MasterCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Check if user already has a master profile
     existing_master = db.query(Master).filter(Master.user_id == current_user.id).first()
@@ -120,7 +120,7 @@ async def update_master_profile(
     master_id: int,
     master_update: MasterUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     master = db.query(Master).filter(Master.id == master_id).first()
     if not master:
@@ -157,7 +157,7 @@ async def add_portfolio_item(
     master_id: int,
     portfolio_data: PortfolioCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     master = db.query(Master).filter(Master.id == master_id).first()
     if not master:
@@ -201,7 +201,7 @@ async def delete_portfolio_item(
     master_id: int,
     portfolio_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     master = db.query(Master).filter(Master.id == master_id).first()
     if not master:
@@ -237,7 +237,7 @@ async def delete_portfolio_item(
 async def verify_master(
     master_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     # Only admin can verify masters
     if current_user.role != UserRole.ADMIN:

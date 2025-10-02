@@ -10,7 +10,7 @@ from backend.schemas import (
     OrderCreate, 
     OrderItem as OrderItemSchema
 )
-from backend.auth import get_current_active_user
+from backend.auth import get_current_user
 
 router = APIRouter()
 
@@ -18,7 +18,7 @@ router = APIRouter()
 async def create_order(
     order_data: OrderCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Create a new order with multiple services
@@ -105,7 +105,7 @@ async def get_orders(
     master_id: Optional[int] = Query(None),
     client_id: Optional[int] = Query(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Get orders with filtering options
@@ -144,7 +144,7 @@ async def get_orders(
 async def get_order(
     order_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Get specific order details
@@ -182,7 +182,7 @@ async def update_order_status(
     order_id: int,
     new_status: OrderStatus,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Update order status (masters and admins only)
@@ -255,7 +255,7 @@ async def update_order_status(
 async def cancel_order(
     order_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Cancel an order (only pending orders can be cancelled)
@@ -299,7 +299,7 @@ async def cancel_order(
 async def get_master_order_stats(
     master_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Get order statistics for a master

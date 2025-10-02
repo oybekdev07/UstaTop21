@@ -5,7 +5,7 @@ from sqlalchemy import func
 from backend.database import get_db
 from backend.models import Review, Order, Master, User, UserRole, OrderStatus
 from backend.schemas import Review as ReviewSchema, ReviewCreate
-from backend.auth import get_current_active_user
+from backend.auth import get_current_user
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ async def create_review(
     review_data: ReviewCreate,
     order_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Create a review for a completed order
@@ -126,7 +126,7 @@ async def update_review(
     review_id: int,
     review_update: ReviewCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Update a review (only by the client who created it)
@@ -167,7 +167,7 @@ async def update_review(
 async def delete_review(
     review_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Delete a review (only by the client who created it or admin)
